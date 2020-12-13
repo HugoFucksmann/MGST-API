@@ -50,9 +50,9 @@ const typeDefs = `
   type Mutation {
     login( input: login ): String
     register( input: login): String
-    crearPersona( input: PersonaInput ): Persona
-    eliminarPersona( _id: ID ): Persona
-    actualizarPersona(_id: ID, input: PersonaInput ): Persona
+    crearPersona( input: PersonaInput ): String
+    eliminarPersona( _id: ID ): String
+    actualizarPersona(_id: ID, input: PersonaInput ): String
   }
 `;
 

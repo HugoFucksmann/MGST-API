@@ -10,7 +10,7 @@ const generarJWT = (uid) => {
       payload,
       process.env.SECRETJWT,
       {
-        expiresIn: "12h",
+        expiresIn: "4h",
       },
       (err, token) => {
         if (err) {
@@ -24,6 +24,22 @@ const generarJWT = (uid) => {
   });
 };
 
+const verificarJWT = (ctx) => {
+   const cooki = ctx.res.req.headers.cookie;
+     const cero = cooki.indexOf('x-token')
+     const token = cooki.slice(cero+8);
+      try {
+        const {uid} = jwt.verify(token, process.env.SECRETJWT);
+        return true
+      } catch (err) {
+        console.log(err);
+        return false;
+      }
+}
+
+
+
 module.exports = {
   generarJWT,
+  verificarJWT,
 };

@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { generarJWT } = require('../helpers/jwt');
+const { generarJWT, verificarJWT } = require("../helpers/jwt");
 const Persona = require("../models/personas");
 const Usuarios = require("../models/usuarios");
 
@@ -9,7 +9,7 @@ const resolvers = {
     Personas: async () => await Persona.find(),
   },
   Mutation: {
-    register: async (_, { input }) => {
+    register: async (_, { input }, {res}) => {
       const hashedPassword = await bcrypt.hash(input.password, 10);
       const newUser = new Usuarios({
         usuario: input.usuario,
@@ -22,7 +22,7 @@ const resolvers = {
       }
       return "usuario creado con exito";
     },
-    login: async (_, { input }) => {
+    login: async (_, { input }, {res}) => {
       const usuarioDB = await Usuarios.findOne({usuario: input.usuario});
       if (!usuarioDB) {
         return "no existe usuario";
@@ -32,27 +32,36 @@ const resolvers = {
         return "password no valido";
       }
       const token = await generarJWT(usuarioDB._id);
-      return token;
+      //todo: guardar token
+      res.cookie("x-token",token);
+      return 'login ok!';
     },
-    crearPersona: async (_, { input }) => {
-      const newPersona = new Persona(input);
-      await newPersona.save();
-      return newPersona;
+    crearPersona: async (_, { input },ctx) => {
+       if (verificarJWT(ctx)) {
+        const newPersona = new Persona(input);
+        await newPersona.save();
+        return "creado !";
+       } else {
+         return "token no valido";
+       }
     },
-    eliminarPersona: async (_, { _id }) => {
-      return await Persona.findByIdAndDelete(_id);
+    eliminarPersona: async (_, { _id },ctx) => {
+      if (verificarJWT(ctx)) {
+        await Persona.findByIdAndDelete(_id);
+        return "eliminado !";
+      } else {
+        return "token no valido";
+      }
     },
-    actualizarPersona: async (_, { _id, input }) => {
-      return await Persona.findOneAndUpdate(_id, input, { new: true });
+    actualizarPersona: async (_, { _id, input },ctx) => {
+      if (verificarJWT(ctx)){
+         await Persona.findOneAndUpdate(_id, input, { new: true });
+         return 'actualizado !'
+      }else{
+        return 'token no valido'
+      }
     },
   },
-  /*  Author: {
-    posts: (author) => filter(posts, { authorId: author.id }),
-  },
-
-  Post: {
-    author: (post) => find(authors, { id: post.authorId }),
-  }, */
 };
 
 
