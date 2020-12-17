@@ -23,22 +23,16 @@ const generarJWT = (uid) => {
     );
   });
 };
-
 const verificarJWT = (ctx) => {
-   const cooki = ctx.res.req.headers.cookie;
-     const cero = cooki.indexOf('x-token')
-     const token = cooki.slice(cero+8);
+    const token = ctx.res.req.headers.token || '';
       try {
         const {uid} = jwt.verify(token, process.env.SECRETJWT);
-        return true
+        return uid
       } catch (err) {
         console.log(err);
         return false;
       }
 }
-
-
-
 module.exports = {
   generarJWT,
   verificarJWT,

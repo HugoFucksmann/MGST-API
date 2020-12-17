@@ -1,4 +1,11 @@
-const typeDefs = `
+const { gql } = require("apollo-server-express");
+const typeDefs = gql`
+
+  type logAuth {
+    msg: String!
+    autenticated: String!
+    token: String
+  }
 
  type User {
     id: ID
@@ -25,6 +32,7 @@ const typeDefs = `
   type Query {
     Usuarios: [User]
     Personas: [Persona]
+    Usuario: User
   }
 
   input login {
@@ -48,7 +56,7 @@ const typeDefs = `
 
   # this schema allows the following mutation:
   type Mutation {
-    login( input: login ): String
+    login( input: login ): logAuth
     register( input: login): String
     crearPersona( input: PersonaInput ): String
     eliminarPersona( _id: ID ): String
